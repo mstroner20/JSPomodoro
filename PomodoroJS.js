@@ -5,7 +5,8 @@ const startButton = document.querySelector('#startButton');
 const pauseButton = document.querySelector('#pauseButton');
 const stopButton = document.querySelector('#stopButton');
 
-const TIME_LIMIT = 1500;
+var TIME_LIMIT = 5;
+var BREAK_TIME = 300;
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -23,6 +24,10 @@ var t;
 
 var isTimerOn = false; 
 var userClicks = 0;
+
+var currentTask;
+
+var workOrBreak = 0;
 
 const COLOR_CODES = {
   info: {
@@ -80,55 +85,49 @@ function timedCount(){
   
     if (c === -1) {
       onTimesUp();
-      timeLeft = TIME_LIMIT;
-      c = TIME_LIMIT;
     }
 }
 
 
 
 function onTimesUp() {
+  workOrBreak = 1; //Break time
   clearTimeout(t);
-  t= null;
-}
-/*
-function startTimer() {
-  timerInterval = setTimeout(() => {
-    timePassed = timePassed += 1;
-    pauseTime = timePassed;
-    timeLeft = TIME_LIMIT - timePassed;
-    document.getElementById("base-timer-label").innerHTML = formatTime(
-      timeLeft
-    );
-    setCircleDasharray();
-    setRemainingPathColor(timeLeft);
+  TIME_LIMIT = BREAK_TIME;
+  
+ 
+  c = BREAK_TIME;
+  
+  resetColorCodes();
+  setCircleDasharray();
+  setRemainingPathColor(c);
+  
+  timedCount();
 
-    if (timeLeft === 0) {
-      onTimesUp();
-      timeLeft = TIME_LIMIT;
-      timePassed = 0;
-    }
-  }, 1000);
 }
-*/
 
-function checkClicks(){
-  if(document.getElementById("startButton").clicked ===true){
-    userClicks++;
-  }
-}
 
 function startTimer(){
   isTimerOn = true;
   userClicks++;
+  currentTask = document.getElementById("taskNameInput").value;
   if(isTimerOn === true && userClicks === 1){
-    timedCount();
+    if(currentTask != ""){
+      timedCount();
+    }
+    else{
+      //Display notification for text input 
+      alert("You must input something for current task.");
+      userClicks = 0;
+    }
+    
   }
 }
 
 function pauseTimer(){
   clearTimeout(t);
   isTimerOn = false; 
+  userClicks=0;
 }
 
 function stopTimer(){
@@ -140,6 +139,9 @@ function stopTimer(){
   setCircleDasharray();
   setRemainingPathColor(c);
   userClicks = 0;
+
+  document.getElementById("taskNameInput").value = "";
+  currentTask = "";
   
 }
 
@@ -183,6 +185,21 @@ function setRemainingPathColor(timeLeft) {
       .classList.add(warning.color);
   }
 }
+
+function resetColorCodes(){
+  document
+      .getElementById("base-timer-path-remaining")
+      .classList.add(COLOR_CODES.info.color);
+
+  document
+    .getElementById("base-timer-path-remaining")
+    .classList.remove(COLOR_CODES.warning.color);
+    document
+    .getElementById("base-timer-path-remaining")
+    .classList.remove(COLOR_CODES.alert.color);
+}
+
+
 
 function calculateTimeFraction() {
   const rawTimeFraction = timeLeft / TIME_LIMIT;

@@ -15,12 +15,61 @@ h3{
     text-align: center;
 }
 
+#taskNameDiv{
+  display:flex;
+  align-items:center;
+  justify-content: center;
+
+  margin-right:80px;
+  margin-top:10px;
+}
+
+#taskNameLabel{
+  margin-right:15px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size:20px;
+}
+
+#Durations{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-top:20px;
+  margin-left:95px;
+
+  font-family: 'Fira Sans Condensed', sans-serif;
+}
+
+#workDurationInput{
+ 
+  display:inline-flex;
+  width:10%;
+
+  flex-wrap:wrap;
+  
+ 
+  padding-left:20px;
+}
+
+#breakDurationInput{
+  display:inline-flex;
+  width:16%;
+
+  flex-wrap:wrap;
+  
+}
+
+
+
 #clockActions{
     margin-top:15px;
+
     text-align:center;
     align-items:center;
-    
+    justify-content:center;
 }
+
 
 #pomodoroTimerContainer{
     display:flex;
