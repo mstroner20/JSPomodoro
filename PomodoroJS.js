@@ -120,7 +120,8 @@ function checkClicks(){
 
 function startTimer(){
   isTimerOn = true;
-  if(isTimerOn === true){
+  userClicks++;
+  if(isTimerOn === true && userClicks === 1){
     timedCount();
   }
 }
@@ -136,6 +137,10 @@ function stopTimer(){
   c= TIME_LIMIT;
   timeLeft = c;
   document.getElementById("base-timer-label").innerHTML = formatTime(c);
+  setCircleDasharray();
+  setRemainingPathColor(c);
+  userClicks = 0;
+  
 }
 
 
