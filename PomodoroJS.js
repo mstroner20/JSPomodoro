@@ -4,9 +4,17 @@ const pomodoroTimer = document.querySelector('#pomodoroTimer');
 const startButton = document.querySelector('#startButton');
 const pauseButton = document.querySelector('#pauseButton');
 const stopButton = document.querySelector('#stopButton');
+const submitButton = document.querySelector('#submitButton');
 
-var TIME_LIMIT = 5;
-var BREAK_TIME = 300;
+var defaultWorkLimit = 1500;
+var defaultBreakLimit = 300;
+
+var TIME_LIMIT = defaultWorkLimit;
+var BREAK_TIME = defaultBreakLimit;
+
+
+
+
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -27,7 +35,11 @@ var userClicks = 0;
 
 var currentTask;
 
-var workOrBreak = 0;
+var workOrBreak = 1;
+
+
+document.getElementById("workDurationInput").value = defaultWorkLimit/60;
+document.getElementById("breakDurationInput").value = defaultBreakLimit/60;
 
 const COLOR_CODES = {
   info: {
@@ -47,31 +59,37 @@ let remainingPathColor = COLOR_CODES.info.color;
 
 startButton.addEventListener('click', startTimer);
 pauseButton.addEventListener('click', pauseTimer);
-stopButton.addEventListener('click', stopTimer);
+stopButton.addEventListener('click', resetTimer);
+submitButton.addEventListener('click', setDurations);
 
-document.getElementById("pomodoroTimer").innerHTML = `
-<div class="base-timer">
-  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <g class="base-timer__circle">
-      <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
-      <path
-        id="base-timer-path-remaining"
-        stroke-dasharray="283"
-        class="base-timer__path-remaining ${remainingPathColor}"
-        d="
+setTimer();
+
+function setTimer(){
+  document.getElementById("pomodoroTimer").innerHTML = `
+  <div class="base-timer">
+    <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g class="base-timer__circle">
+        <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+        <path
+          id="base-timer-path-remaining"
+          stroke-dasharray="283"
+          class="base-timer__path-remaining ${remainingPathColor}"
+          d="
           M 50, 50
           m -45, 0
           a 45,45 0 1,0 90,0
           a 45,45 0 1,0 -90,0
-        "
-      ></path>
-    </g>
-  </svg>
+          "
+        ></path>
+      </g>
+    </svg>
   <span id="base-timer-label" class="base-timer__label">${formatTime(
     timeLeft
   )}</span>
 </div>
 `;
+}
+
 
 
 function timedCount(){
@@ -88,15 +106,23 @@ function timedCount(){
     }
 }
 
-
-
 function onTimesUp() {
-  workOrBreak = 1; //Break time
-  clearTimeout(t);
-  TIME_LIMIT = BREAK_TIME;
   
- 
-  c = BREAK_TIME;
+  workOrBreak++; //Break time
+  clearTimeout(t);
+
+  if(workOrBreak % 2 == 0)
+  {
+    //breakTime
+    //alert("ITS TIME TO BREAK"); //Break Alert
+    c = BREAK_TIME;
+
+  }
+  else if(workOrBreak % 2 === 1){
+    
+    c =TIME_LIMIT;
+    
+  }
   
   resetColorCodes();
   setCircleDasharray();
@@ -105,7 +131,6 @@ function onTimesUp() {
   timedCount();
 
 }
-
 
 function startTimer(){
   isTimerOn = true;
@@ -130,7 +155,7 @@ function pauseTimer(){
   userClicks=0;
 }
 
-function stopTimer(){
+function resetTimer(){
   clearTimeout(t);
   isTimerOn = false; 
   c= TIME_LIMIT;
@@ -142,7 +167,6 @@ function stopTimer(){
 
   document.getElementById("taskNameInput").value = "";
   currentTask = "";
-  
 }
 
 
@@ -199,13 +223,11 @@ function resetColorCodes(){
     .classList.remove(COLOR_CODES.alert.color);
 }
 
-
-
 function calculateTimeFraction() {
   const rawTimeFraction = timeLeft / TIME_LIMIT;
   return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
 }
-    
+
 // Update the dasharray value as time passes, starting with 283
 function setCircleDasharray() {
   const circleDasharray = `${(
@@ -216,4 +238,24 @@ function setCircleDasharray() {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
+function setDurations(){
+  if(document.getElementById("workDurationInput").value === "")
+  {
+    alert("Cannot leave Work Duration empty.");
+  }
+
+  if(document.getElementById("breakDurationInput").value === "")
+  {
+    alert("Cannot leave Break Duration empty.");
+  }
+
+  TIME_LIMIT = convertToMinutes(document.getElementById("workDurationInput").value);
+  BREAK_TIME= convertToMinutes(document.getElementById("breakDurationInput").value);
+  resetTimer();
+  resetColorCodes();
+}
+
+function convertToMinutes(seconds){
+  return seconds*60;
+}
 

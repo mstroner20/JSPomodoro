@@ -36,7 +36,7 @@ h3{
   justify-content: center;
   position: relative;
   margin-top:20px;
-  margin-left:95px;
+  margin-left:150px;
 
   font-family: 'Fira Sans Condensed', sans-serif;
 }
@@ -59,6 +59,12 @@ h3{
   flex-wrap:wrap;
   
 }
+#workDuration{
+  width:250px;
+}
+#breakDuration{
+  width:250px;
+}
 
 
 
@@ -76,6 +82,26 @@ h3{
     align-items:center;
     justify-content: center;
 }
+
+#taskRow{
+  display: flex;
+  margin-top:25px; 
+}
+
+#incompleteTaskCol{
+  width:50%;
+
+  text-align:center;
+}
+
+#completeTaskCol{
+  width:50%;
+  text-align:center;
+
+  
+  
+}
+
 
 /* Sets the containers height and width */
 .base-timer {
