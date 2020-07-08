@@ -37,6 +37,8 @@ var currentTask;
 
 var workOrBreak = 1;
 
+var taskArray = [0];
+
 
 document.getElementById("workDurationInput").value = defaultWorkLimit/60;
 document.getElementById("breakDurationInput").value = defaultBreakLimit/60;
@@ -108,21 +110,27 @@ function timedCount(){
 
 function onTimesUp() {
   
+  addToCompleteList();
   workOrBreak++; //Break time
   clearTimeout(t);
 
   if(workOrBreak % 2 == 0)
   {
+    
     //breakTime
     //alert("ITS TIME TO BREAK"); //Break Alert
     c = BREAK_TIME;
+    
 
   }
   else if(workOrBreak % 2 === 1){
     
     c =TIME_LIMIT;
     
+    
   }
+
+  
   
   resetColorCodes();
   setCircleDasharray();
@@ -139,6 +147,7 @@ function startTimer(){
   if(isTimerOn === true && userClicks === 1){
     if(currentTask != ""){
       timedCount();
+      addElementsToArray();
     }
     else{
       //Display notification for text input 
@@ -259,3 +268,67 @@ function convertToMinutes(seconds){
   return seconds*60;
 }
 
+function addElementsToArray(){
+  taskArray.push(currentTask);
+  addToList();
+}
+
+function addToList(){
+  var incompleteList = document.getElementById("incompleteTaskList")
+  var li = document.createElement("li");
+  li.textContent = currentTask;
+  
+  incompleteList.append(li);
+ 
+}
+
+function addToCompleteList(){
+  var completeList = document.getElementById("completeTaskList")
+  var li = document.createElement("li");
+
+  var completeChildren = completeList.children;
+
+  var checkDups = 1;
+  
+  li.textContent = currentTask;
+
+  if(completeChildren.length < 1){
+    completeList.append(li);
+  }
+  else{
+     for(var i = 0; i < completeChildren.length; i++){
+       if(completeChildren[i].textContent === currentTask){
+         checkDups = 1;
+         break;
+       }else{
+         checkDups++;
+       }
+     }
+  }
+
+  if(checkDups === completeChildren.length+1){
+    completeList.append(li);
+    checkDups = 1;
+  }
+
+  
+  
+  
+}
+
+function removeIncompleteTasks(completedTask){
+  var element = document.getElementById('incompleteTaskList');
+  var children = element.children;
+ 
+
+  for(var i = 0; i <= children.length; i++)
+  {
+    if(completedTask === children[i].textContent){
+      var newli = document.createElement("li");
+      newli.textContent = completedTask.strike();
+     
+      document.getElementById("incompleteTaskList").children[i].textContent = completedTask.strike();
+    }
+  }
+
+}
