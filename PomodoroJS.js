@@ -6,43 +6,40 @@ const pauseButton = document.querySelector('#pauseButton');
 const stopButton = document.querySelector('#stopButton');
 const submitButton = document.querySelector('#submitButton');
 
-var defaultWorkLimit = 1500;
-var defaultBreakLimit = 300;
+var defaultWorkLimit = 1500; //Default work timer set to 25 Minutes
+var defaultBreakLimit = 300; //Default break time set to 5 Minutes
 
+//Sets the current Time for timer
 var TIME_LIMIT = defaultWorkLimit;
 var BREAK_TIME = defaultBreakLimit;
 
-
-//Push pls
-
-
+//Values for circular timer
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
 const ALERT_THRESHOLD = 5;
 
-
-let timePassed = 0;
+//Set initial time limit
 let timeLeft = TIME_LIMIT;
-
-let timerInterval = null;
-let pauseTime = 0;
-
-var c = TIME_LIMIT; 
-var t;
-
+//Current Time - used for increment and decrementing timer
+var currentTime = TIME_LIMIT; 
+//Timer variable used for resetting and pausing 
+var time = null;
+//Checks timer state
 var isTimerOn = false; 
+//Tracks user click to ensure timer is only run once 
 var userClicks = 0;
-
+//String var for current task 
 var currentTask;
-
+//Switches between timer states
 var workOrBreak = 1;
 
-var taskArray = [0];
 
 
+//Converts the inputs to minutes instead of seconds
 document.getElementById("workDurationInput").value = defaultWorkLimit/60;
 document.getElementById("breakDurationInput").value = defaultBreakLimit/60;
 
+//Sets color based on time passed
 const COLOR_CODES = {
   info: {
     color: "green"
@@ -56,16 +53,19 @@ const COLOR_CODES = {
     threshold: ALERT_THRESHOLD
   }
 };
- 
+
 let remainingPathColor = COLOR_CODES.info.color;
 
+//Event listeners
 startButton.addEventListener('click', startTimer);
 pauseButton.addEventListener('click', pauseTimer);
 stopButton.addEventListener('click', resetTimer);
 submitButton.addEventListener('click', setDurations);
 
+//Initial setting of timer 
 setTimer();
 
+//Sets timer using inner HTML along with formatting style
 function setTimer(){
   document.getElementById("pomodoroTimer").innerHTML = `
   <div class="base-timer">
@@ -93,92 +93,92 @@ function setTimer(){
 }
 
 
-
+//Formats time and begins the countdown
 function timedCount(){
-    document.getElementById("base-timer-label").innerHTML = formatTime(c);
-    c = c - 1;
-    timeLeft = c;
-    t = setTimeout(timedCount, 1000);
+    document.getElementById("base-timer-label").innerHTML = formatTime(currentTime);
+    currentTime -= 1; //decrement by 1 second
+    timeLeft = currentTime;
+    time = setTimeout(timedCount, 1000); //Timeout 
   
+    //Sets path colors
     setCircleDasharray();
-    setRemainingPathColor(c);
+    setRemainingPathColor(currentTime);
   
-    if (c === -1) {
+    //Code for when timer finished
+    if (currentTime === -1) {
       onTimesUp();
     }
 }
 
+//Timer finished 
 function onTimesUp() {
   
-  addToCompleteList();
-  workOrBreak++; //Break time
-  clearTimeout(t);
+  addToCompleteList(); //Adds task to completed list -> in future might want to allow user to continue on same task 
+  workOrBreak++; //Switch state
+  clearTimeout(time); //Clear timer
 
   if(workOrBreak % 2 == 0)
   {
-    
-    //breakTime
-    //alert("ITS TIME TO BREAK"); //Break Alert
-    c = BREAK_TIME;
-    
-
+    currentTime = BREAK_TIME; //Switches time to break time
   }
   else if(workOrBreak % 2 === 1){
     
-    c =TIME_LIMIT;
-    
-    
+    currentTime =TIME_LIMIT; //Switches time to work time
   }
 
-  
-  
-  resetColorCodes();
+  resetColorCodes(); //Resets colors for next timer
   setCircleDasharray();
-  setRemainingPathColor(c);
+  setRemainingPathColor(currentTime);
   
-  timedCount();
+  timedCount(); //Restarts the timer automatically 
 
 }
 
+//Checks if the timer is able to begin counting down
 function startTimer(){
   isTimerOn = true;
-  userClicks++;
-  currentTask = document.getElementById("taskNameInput").value;
-  if(isTimerOn === true && userClicks === 1){
-    if(currentTask != ""){
-      timedCount();
-      addElementsToArray();
+  userClicks++; //Ensures that user only starts the timer once and that it only counts down by 1 second 
+  currentTask = document.getElementById("taskNameInput").value; //Grabs the users current task
+  
+  //Checks to verify timer can run
+  if(isTimerOn === true && userClicks === 1){ //Timer set to on and user only clicked once 
+    if(currentTask != ""){ //Make sure there is a task inputted
+      timedCount(); //Begin counting 
+      addToList(); //Add task to incomplete task 
     }
     else{
-      //Display notification for text input 
+      //Display error notification for text input 
       alert("You must input something for current task.");
-      userClicks = 0;
+      userClicks = 0; //Reset clicks
     }
     
   }
 }
-
+//Simple pause function 
 function pauseTimer(){
-  clearTimeout(t);
+  clearTimeout(time);
+  //Allows user to press start to resume 
   isTimerOn = false; 
   userClicks=0;
 }
-
+//Simple reset Timer
 function resetTimer(){
-  clearTimeout(t);
-  isTimerOn = false; 
-  c= TIME_LIMIT;
-  timeLeft = c;
-  document.getElementById("base-timer-label").innerHTML = formatTime(c);
+  clearTimeout(time); //Pauses timer temporarily 
+  isTimerOn = false;  //Stop timer
+  currentTime= TIME_LIMIT; //Reset the clock to old work time 
+  timeLeft = currentTime;
+  //Reset circle style
+  document.getElementById("base-timer-label").innerHTML = formatTime(currentTime);
   setCircleDasharray();
-  setRemainingPathColor(c);
-  userClicks = 0;
+  setRemainingPathColor(currentTime);
+  userClicks = 0; //Allows restarting 
 
+  //Clears input 
   document.getElementById("taskNameInput").value = "";
   currentTask = "";
 }
 
-
+//Formats the time for counting down
 function formatTime(time){
     const minutes = Math.floor(time/60);
 
@@ -188,9 +188,9 @@ function formatTime(time){
         seconds = `0${seconds}`;
     }
 
-    return `${minutes}:${seconds}`;
+    return `${minutes}:${seconds}`; //Return correct format
 }
-
+//Sets circle array
 function setCircleDasharray() {
   const circleDasharray = `${(
     calculateTimeFraction() * FULL_DASH_ARRAY
@@ -199,7 +199,7 @@ function setCircleDasharray() {
     .getElementById("base-timer-path-remaining")
     .setAttribute("stroke-dasharray", circleDasharray);
 }
-
+//Sets path color based on threshold of time left
 function setRemainingPathColor(timeLeft) {
   const { alert, warning, info } = COLOR_CODES;
   if (timeLeft <= alert.threshold) {
@@ -218,7 +218,7 @@ function setRemainingPathColor(timeLeft) {
       .classList.add(warning.color);
   }
 }
-
+//Resets color codes if the timer is reset with new values 
 function resetColorCodes(){
   document
       .getElementById("base-timer-path-remaining")
@@ -237,7 +237,7 @@ function calculateTimeFraction() {
   return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
 }
 
-// Update the dasharray value as time passes, starting with 283
+//Updates the circle array 
 function setCircleDasharray() {
   const circleDasharray = `${(
     calculateTimeFraction() * FULL_DASH_ARRAY
@@ -246,7 +246,7 @@ function setCircleDasharray() {
     .getElementById("base-timer-path-remaining")
     .setAttribute("stroke-dasharray", circleDasharray);
 }
-
+//Sets durations based on user input 
 function setDurations(){
   if(document.getElementById("workDurationInput").value === "")
   {
@@ -257,78 +257,55 @@ function setDurations(){
   {
     alert("Cannot leave Break Duration empty.");
   }
-
-  TIME_LIMIT = convertToMinutes(document.getElementById("workDurationInput").value);
+  //Converts to minutes instead of seconds
+  TIME_LIMIT = convertToMinutes(document.getElementById("workDurationInput").value); 
   BREAK_TIME= convertToMinutes(document.getElementById("breakDurationInput").value);
   resetTimer();
   resetColorCodes();
 }
-
+//Convert to minutes function
 function convertToMinutes(seconds){
   return seconds*60;
 }
-
-function addElementsToArray(){
-  taskArray.push(currentTask);
-  addToList();
-}
-
+//Adds current user task to incomplete task list 
 function addToList(){
   var incompleteList = document.getElementById("incompleteTaskList")
-  var li = document.createElement("li");
+  var li = document.createElement("li"); //create new List element to be added
   li.textContent = currentTask;
   
-  incompleteList.append(li);
+  incompleteList.append(li); //append to bottom of list 
  
 }
 
 function addToCompleteList(){
-  var completeList = document.getElementById("completeTaskList")
-  var li = document.createElement("li");
-
-  var completeChildren = completeList.children;
-
-  var checkDups = 1;
   
-  li.textContent = currentTask;
+  var completeList = document.getElementById("completeTaskList")
+  var li = document.createElement("li"); //create new list element 
 
-  if(completeChildren.length < 1){
+  var completeChildren = completeList.children; //grabs all elements in complete taks list 
+
+  var checkDups = 1; //int to check if there are duplicates in the list 
+  
+  li.textContent = currentTask; //set new li to current task 
+
+  if(completeChildren.length < 1){ //if no elements in list, automatically add current task 
     completeList.append(li);
   }
-  else{
-     for(var i = 0; i < completeChildren.length; i++){
-       if(completeChildren[i].textContent === currentTask){
-         checkDups = 1;
-         break;
+  else{ //more than 0 elements
+     for(var i = 0; i < completeChildren.length; i++){ //loop through list 
+       if(completeChildren[i].textContent === currentTask){ //Found duplicate
+         checkDups = 1; //reset counter
+         break; //break loop and do not add current task to list 
        }else{
-         checkDups++;
+         checkDups++; //element does not match current task 
        }
      }
   }
 
   if(checkDups === completeChildren.length+1){
-    completeList.append(li);
-    checkDups = 1;
+    completeList.append(li); //no dups found 
+    checkDups = 1; //reset counter
   }
-
-  
-  
-  
 }
 
-function removeIncompleteTasks(completedTask){
-  var element = document.getElementById('incompleteTaskList');
-  var children = element.children;
- 
 
-  for(var i = 0; i <= children.length; i++)
-  {
-    if(completedTask === children[i].textContent){
-      var newli = document.createElement("li");
-      newli.textContent = completedTask.strike();
-     
-      document.getElementById("incompleteTaskList").children[i].textContent = completedTask.strike();
-    }
-  }
-
-}
