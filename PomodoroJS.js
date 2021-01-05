@@ -33,6 +33,8 @@ var currentTask;
 //Switches between timer states
 var workOrBreak = 1;
 
+var isPauseTrue = false; 
+
 
 
 //Converts the inputs to minutes instead of seconds
@@ -140,8 +142,9 @@ function startTimer(){
   userClicks++; //Ensures that user only starts the timer once and that it only counts down by 1 second 
   currentTask = document.getElementById("taskNameInput").value; //Grabs the users current task
   
+  
   //Checks to verify timer can run
-  if(isTimerOn === true && userClicks === 1){ //Timer set to on and user only clicked once 
+  if(isTimerOn === true && userClicks === 1 && isPauseTrue === false){ //Timer set to on and user only clicked once 
     if(currentTask != ""){ //Make sure there is a task inputted
       timedCount(); //Begin counting 
       addToList(); //Add task to incomplete task 
@@ -153,6 +156,11 @@ function startTimer(){
     }
     
   }
+
+  if(isPauseTrue === true){
+    timedCount();
+    isPauseTrue = false; 
+  }
 }
 //Simple pause function 
 function pauseTimer(){
@@ -160,6 +168,7 @@ function pauseTimer(){
   //Allows user to press start to resume 
   isTimerOn = false; 
   userClicks=0;
+  isPauseTrue = true; 
 }
 //Simple reset Timer
 function resetTimer(){
