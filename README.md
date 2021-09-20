@@ -8,3 +8,4 @@
 
 
 ![GitHub top language](https://img.shields.io/github/languages/top/mstroner20/JSPomodoro)
+![CssBadge](https://github.com/mstroner20/JSPomodoro/images/CSS-23%-red.png)
